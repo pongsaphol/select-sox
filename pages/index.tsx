@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import Layout from "../components/Layout";
 
 const IndexPage = () => {
+  const router = useRouter();
+  const [status, setStatus] = useState<boolean>(false);
+  useEffect(() => {
+    if (router.query.data && typeof router.query.data === "string") {
+      const data = JSON.parse(router.query.data);
+      update(data.join("\n"));
+      setStatus(true);
+    }
+  }, [router]);
   const [text, setText] = useState<string>("");
+  const [text2, setText2] = useState<string>("");
   const getFalse = (len: number) => {
     let arr = [];
     for (let i = 0; i < len; i++) {
@@ -13,40 +24,79 @@ const IndexPage = () => {
   };
   const formatText = (text: string[]) => {
     const newText = `const selectSox = ${JSON.stringify(text)}
-    const check = ${JSON.stringify(getFalse(text.length))}
-    
-    const tbody =
-      document.getElementById("page-wrapper").firstChild.nextSibling.nextSibling
-        .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.firstChild
-        .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling
-        .nextSibling.nextSibling.nextSibling.firstChild.nextSibling.firstChild
-        .nextSibling.firstChild.nextSibling.nextSibling.nextSibling.firstChild
-        .nextSibling;
-    
-    const length = tbody.childNodes.length
-    for (let i = 0; i < length; i++) {
-      try {
-        const text = tbody.childNodes[i].children[1].innerText
-        for (let j = 0; j < selectSox.length; j++) {
-          if (text === selectSox[j]) {
-            check[j] = true
-            tbody.childNodes[i].click()
-          }
+  const check = ${JSON.stringify(getFalse(text.length))}
+  
+  const tbody =
+    document.getElementById("page-wrapper").firstChild.nextSibling.nextSibling
+      .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.firstChild
+      .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling
+      .nextSibling.nextSibling.nextSibling.firstChild.nextSibling.firstChild
+      .nextSibling.firstChild.nextSibling.nextSibling.nextSibling.firstChild
+      .nextSibling;
+  
+  const length = tbody.childNodes.length
+  for (let i = 0; i < length; i++) {
+    try {
+      const text = tbody.childNodes[i].children[1].innerText
+      for (let j = 0; j < selectSox.length; j++) {
+        if (text === selectSox[j]) {
+          check[j] = true
+          tbody.childNodes[i].click()
         }
-      } catch {
-        continue
       }
+    } catch {
+      continue
     }
-    
-    let donthave = ""
-    
-    for (let i = 0; i < selectSox.length; i++) {
-      if (check[i] === false) {
-        donthave += selectSox[i] + " "
+  }
+  
+  let donthave = ""
+  
+  for (let i = 0; i < selectSox.length; i++) {
+    if (check[i] === false) {
+      donthave += selectSox[i] + " "
+    }
+  }
+  window.scrollTo({ left: 0, top: document.body.scrollHeight})
+  console.log(donthave)`;
+    return newText;
+  };
+
+  const formatText2 = (text: string[]) => {
+    const newText = `const selectSox = ${JSON.stringify(text)}
+  const check = ${JSON.stringify(getFalse(text.length))}
+  
+  const tbody =
+  document.getElementById("page-wrapper").firstChild.nextSibling.nextSibling
+    .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.firstChild
+    .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling
+    .nextSibling.nextSibling.nextSibling.firstChild.nextSibling.firstChild
+    .nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.firstChild
+    .nextSibling.nextSibling.nextSibling.firstChild.nextSibling;
+  
+  const length = tbody.childNodes.length
+  for (let i = 0; i < length; i++) {
+    try {
+      const text = tbody.childNodes[i].children[0].innerText
+      for (let j = 0; j < selectSox.length; j++) {
+        if (text === selectSox[j]) {
+          check[j] = true
+          tbody.childNodes[i].children[0].click()
+        }
       }
+    } catch {
+      continue
     }
-    window.scrollTo({ left: 0, top: document.body.scrollHeight})
-    console.log(donthave)`;
+  }
+  
+  let donthave = ""
+  
+  for (let i = 0; i < selectSox.length; i++) {
+    if (check[i] === false) {
+      donthave += selectSox[i] + " "
+    }
+  }
+  window.scrollTo({ left: 0, top: document.body.scrollHeight})
+  console.log(donthave)`;
     return newText;
   };
 
@@ -59,6 +109,7 @@ const IndexPage = () => {
       data.pop();
       if (data.length === 0) {
         setText("");
+        setText2("");
         return;
       }
     }
@@ -74,6 +125,7 @@ const IndexPage = () => {
       }
     });
     setText(formatText(newData));
+    setText2(formatText2(newData));
   };
   return (
     <div className="w-screen h-screen">
@@ -84,11 +136,22 @@ const IndexPage = () => {
             onChange={(e) => {
               update(e.target.value);
             }}
+            disabled={status}
           ></textarea>
-          <textarea
-            className="border border-gray-900 text-lg mx-4 w-full h-full"
-            value={text}
-          ></textarea>
+          <div className="flex flex-col h-screen w-full mx-4">
+            <p className="font-bold text-lg">ใบจัดเตรียม, IRD</p>
+            <textarea
+              className="border border-gray-900 text-lg w-full h-full font-mono"
+              value={text}
+            ></textarea>
+          </div>
+          <div className="flex flex-col h-screen w-full mx-4">
+            <p className="font-bold text-lg">Confirm Shipping</p>
+            <textarea
+              className="border border-gray-900 text-lg w-full h-full font-mono"
+              value={text2}
+            ></textarea>
+          </div>
         </div>
         {/* <button className="w-full h-32 bg-gray-300">Compile</button> */}
       </div>
